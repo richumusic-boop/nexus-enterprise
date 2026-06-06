@@ -1,0 +1,43 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: nexus-backend
+    env: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    plan: free # Use free tier
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nexus-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: nexus-redis
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+
+  # Frontend Static Site
+  - type: static
+    name: nexus-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    publishPath: ./frontend/dist
+    rootDir: ./frontend
+    envVars:
+      - key: VITE_API_URL
+        value: https://nexus-backend.onrender.com/api/v1
+
+databases:
+  - name: nexus-db
+    plan: free # 90-day free trial on Render
+
+# Redis instance
+  - type: redis
+    name: nexus-redis
+    plan: free
+    ipAllowList: [] # Only allow internal access

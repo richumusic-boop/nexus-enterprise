@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: nexus-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nexus_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nexus_secure_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-nexus_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: nexus-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: ./backend
+    container_name: nexus-backend
+    restart: always
+    depends_on:
+      - db
+      - redis
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-nexus_admin}:${POSTGRES_PASSWORD:-nexus_secure_pass}@db:5432/${POSTGRES_DB:-nexus_db}
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: ${JWT_SECRET:-super-secret-key-change-in-production}
+      ALGORITHM: HS256
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    container_name: nexus-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
