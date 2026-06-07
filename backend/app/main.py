@@ -21,10 +21,21 @@ app = FastAPI(
 @app.on_event("startup")
 async def on_startup():
     logger.info("Initializing database...")
-    async with engine.begin() as conn:
-        # This will create tables if they don't exist
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database initialized.")
+    import asyncio
+    max_retries = 5
+    for i in range(max_retries):
+        try:
+            async with engine.begin() as conn:
+                # This will create tables if they don't exist
+                await conn.run_sync(Base.metadata.create_all)
+            logger.info("Database initialized successfully.")
+            break
+        except Exception as e:
+            if i == max_retries - 1:
+                logger.error(f"Failed to initialize database after {max_retries} attempts: {e}")
+                raise e
+            logger.warning(f"Database connection failed (attempt {i+1}/{max_retries}). Retrying in 5 seconds...")
+            await asyncio.sleep(5)
 
 # CORS configuration
 app.add_middleware(
