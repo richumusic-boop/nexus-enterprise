@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.api.v1.api import api_router
 from app.db.session import engine
 from app.db.base import Base
+from app.mcp_server import mcp
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -43,6 +44,9 @@ async def health_check():
 
 # Include API v1 router
 app.include_router(api_router, prefix="/api/v1")
+
+# Mount MCP SSE app
+app.mount("/mcp", mcp.sse_app())
 
 if __name__ == "__main__":
     import uvicorn
