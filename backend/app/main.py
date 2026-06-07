@@ -1,11 +1,15 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import select
+import logging
+
 from app.core.config import settings
 from app.api.v1.api import api_router
-from app.db.session import engine
+from app.db.session import engine, AsyncSessionLocal
 from app.db.base import Base
 from app.mcp_server import mcp
-import logging
+from app.models.user import User, UserRole
+from app.core import security
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -28,6 +32,24 @@ async def on_startup():
             async with engine.begin() as conn:
                 # This will create tables if they don't exist
                 await conn.run_sync(Base.metadata.create_all)
+            
+            # Create default admin user if it doesn't exist
+            async with AsyncSessionLocal() as session:
+                result = await session.execute(select(User).where(User.email == "admin@nexus.enterprise"))
+                admin_user = result.scalars().first()
+                if not admin_user:
+                    logger.info("Creating default admin user...")
+                    admin_user = User(
+                        email="admin@nexus.enterprise",
+                        hashed_password=security.get_password_hash("admin_pass"),
+                        full_name="Nexus Admin",
+                        role=UserRole.ADMIN,
+                        is_active=True
+                    )
+                    session.add(admin_user)
+                    await session.commit()
+                    logger.info("Default admin user 'admin@nexus.enterprise' created.")
+            
             logger.info("Database initialized successfully.")
             break
         except Exception as e:
