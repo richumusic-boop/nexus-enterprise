@@ -11,11 +11,11 @@ services:
         fromDatabase:
           name: nexus-db
           property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: nexus-redis
-          property: connectionString
+      # - key: REDIS_URL
+      #   fromService:
+      #     type: redis
+      #     name: nexus-redis
+      #     property: connectionString
       - key: JWT_SECRET
         generateValue: true
       - key: ALGORITHM
@@ -36,8 +36,8 @@ databases:
   - name: nexus-db
     plan: free # 90-day free trial on Render
 
-# Redis instance
-  - type: redis
-    name: nexus-redis
-    plan: free
-    ipAllowList: [] # Only allow internal access
+# Redis instance (Currently unused in app logic)
+#   - type: redis
+#     name: nexus-redis
+#     plan: free
+#     ipAllowList: [] # Only allow internal access
