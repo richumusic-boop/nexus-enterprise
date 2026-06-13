@@ -8,7 +8,7 @@ from uuid import UUID
 # Ensure the app directory is in the path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from sqlalchemy import select
 from app.db.session import AsyncSessionLocal
 from app.models.project_task import Project, Task
