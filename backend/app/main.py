@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 import logging
@@ -80,6 +81,12 @@ app.include_router(api_router, prefix="/api/v1")
 
 # Mount MCP SSE app
 app.mount("/mcp", mcp.sse_app())
+
+# Mount frontend static files (Must be last to avoid catching API routes)
+import os
+static_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "static")
+if os.path.exists(static_path):
+    app.mount("/", StaticFiles(directory=static_path, html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
