@@ -10,8 +10,8 @@
         "PYTHONPATH": "c:/Users/hp/.gemini/antigravity/scratch/nexus-enterprise-system/backend"
       }
     },
-    "nexus-enterprise-remote": {
-      "url": "https://nexus-backend.onrender.com/mcp/sse"
+    "nexus-enterprise-hf": {
+      "url": "https://[YOUR_HF_USERNAME]-[YOUR_SPACE_NAME].hf.space/mcp/sse"
     }
   }
 }
