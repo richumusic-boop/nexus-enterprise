@@ -20,12 +20,12 @@ export const LoginView = () => {
 
     try {
       // OAuth2 format: username/password sent as form data
-      const formData = new FormData();
-      formData.append('username', email);
-      formData.append('password', password);
+      const params = new URLSearchParams();
+      params.append('username', email);
+      params.append('password', password);
 
-      const response = await apiClient.post('/auth/login/access-token', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      const response = await apiClient.post('/auth/login/access-token', params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
 
       const { access_token } = response.data;

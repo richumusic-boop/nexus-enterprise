@@ -11,3 +11,8 @@ api_router.include_router(tasks.router, prefix="/tasks", tags=["Tasks"])
 @api_router.get("/")
 async def root():
     return {"message": "Welcome to Nexus API v1"}
+
+@api_router.get("/health")
+async def health():
+    """Health check endpoint."""
+    return {"status": "operational", "version": "1.0.0"}

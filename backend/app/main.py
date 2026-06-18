@@ -56,8 +56,10 @@ async def on_startup():
         except Exception as e:
             if i == max_retries - 1:
                 logger.error(f"Failed to initialize database after {max_retries} attempts: {e}")
+                import traceback
+                traceback.print_exc()
                 raise e
-            logger.warning(f"Database connection failed (attempt {i+1}/{max_retries}). Retrying in 5 seconds...")
+            logger.warning(f"Database connection failed (attempt {i+1}/{max_retries}). Retrying in 5 seconds... Error: {e}")
             await asyncio.sleep(5)
 
 # CORS configuration
@@ -80,7 +82,8 @@ async def health_check():
 app.include_router(api_router, prefix="/api/v1")
 
 # Mount MCP SSE app
-app.mount("/mcp", mcp.sse_app())
+if mcp is not None:
+    app.mount("/mcp", mcp.sse_app())
 
 # Mount frontend static files (Must be last to avoid catching API routes)
 import os
