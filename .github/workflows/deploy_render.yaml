@@ -6,15 +6,18 @@ on:
 
 jobs:
   deploy:
+    name: Trigger Render Deploy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Render CLI
-        run: npm install -g @render/cli
-
-      - name: Deploy services via render.yaml
-        env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      - name: Trigger Backend Deploy Hook
         run: |
-          render deploy --wait
+          echo "Triggering Render backend deployment..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 30 \
+            "${{ secrets.RENDER_DEPLOY_HOOK_URL }}")
+          echo "Render API response code: $response"
+          if [ "$response" -ne 200 ] && [ "$response" -ne 201 ]; then
+            echo "❌ Render deploy hook returned unexpected status: $response"
+            exit 1
+          fi
+          echo "✅ Render deployment triggered successfully."

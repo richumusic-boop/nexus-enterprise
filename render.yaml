@@ -12,7 +12,7 @@ services:
           name: nexus-db-prod
           property: connectionString
 
-      - key: JWT_SECRET
+      - key: SECRET_KEY
         generateValue: true
 
       - key: ALGORITHM
